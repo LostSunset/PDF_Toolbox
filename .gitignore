@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv*/
+dist/
+build/
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+temp_p.pdf
+ui_preview*.png
+*.spec
+nul
