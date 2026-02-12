@@ -1,11 +1,17 @@
 # PDF Toolbox
 
+[![CI](https://github.com/LostSunset/PDF_Toolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/LostSunset/PDF_Toolbox/actions/workflows/ci.yml)
+[![Release](https://github.com/LostSunset/PDF_Toolbox/actions/workflows/release.yml/badge.svg)](https://github.com/LostSunset/PDF_Toolbox/actions/workflows/release.yml)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
 [![PySide6](https://img.shields.io/badge/UI-PySide6-green.svg)](https://doc.qt.io/qtforpython-6/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 一站式 PDF 處理工具箱，採用 PySide6 構建，Catppuccin Mocha 暗色主題。
+
+## 下載
+
+前往 [Releases](https://github.com/LostSunset/PDF_Toolbox/releases/latest) 下載最新版 Windows 執行檔（免安裝，直接執行）。
 
 ## 功能總覽
 
@@ -38,8 +44,8 @@
 
 ```bash
 # 複製專案
-git clone https://github.com/LostSunset/pdf-toolbox.git
-cd pdf-toolbox
+git clone https://github.com/LostSunset/PDF_Toolbox.git
+cd PDF_Toolbox
 
 # 安裝依賴
 uv sync
@@ -73,6 +79,11 @@ src/pdf_toolbox/
 
 三層分離架構：**Core**（可獨立測試的純邏輯）→ **Workers**（QThread 橋接）→ **GUI**（PySide6 介面）。
 
+## CI/CD
+
+- **CI**：每次 push / PR 自動執行 ruff lint + pytest
+- **Release**：推送 `v*` tag 時自動構建 Windows EXE 並上傳至 GitHub Releases
+
 ## 依賴套件
 
 | 套件 | 用途 |
@@ -95,6 +106,9 @@ uv run ruff check --fix src/ tests/
 
 # 執行測試
 uv run pytest
+
+# 本地構建 EXE
+uv run pyinstaller --name PDF_Toolbox --windowed --onefile src/pdf_toolbox/app.py
 ```
 
 ## 授權

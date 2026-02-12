@@ -1,6 +1,6 @@
 [project]
 name = "pdf-toolbox"
-version = "0.1.0"
+version = "0.2.0"
 description = "A unified PySide6 PDF processing toolbox"
 readme = "README.md"
 license = { text = "MIT" }
@@ -33,6 +33,7 @@ dev = [
     "pytest-qt>=4.4",
     "pytest-cov>=6.0",
     "ruff>=0.9",
+    "pyinstaller>=6.0",
 ]
 
 [tool.ruff]

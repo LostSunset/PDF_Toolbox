@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-exe:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Install PyInstaller
+        run: uv pip install pyinstaller
+
+      - name: Extract version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build EXE
+        run: |
+          uv run pyinstaller `
+            --name "PDF_Toolbox" `
+            --windowed `
+            --onefile `
+            --noconfirm `
+            --clean `
+            --add-data "src/pdf_toolbox/gui;pdf_toolbox/gui" `
+            --hidden-import "PySide6.QtCore" `
+            --hidden-import "PySide6.QtGui" `
+            --hidden-import "PySide6.QtWidgets" `
+            --hidden-import "pikepdf" `
+            --hidden-import "PyPDF2" `
+            --hidden-import "fitz" `
+            --hidden-import "reportlab" `
+            --hidden-import "pdf_toolbox" `
+            --hidden-import "pdf_toolbox.core" `
+            --hidden-import "pdf_toolbox.core.unlock" `
+            --hidden-import "pdf_toolbox.core.convert" `
+            --hidden-import "pdf_toolbox.core.protect" `
+            --hidden-import "pdf_toolbox.core.merge" `
+            --hidden-import "pdf_toolbox.core.split" `
+            --hidden-import "pdf_toolbox.core.rotate" `
+            --hidden-import "pdf_toolbox.core.watermark" `
+            --hidden-import "pdf_toolbox.core.compress" `
+            --hidden-import "pdf_toolbox.core.reorder" `
+            --hidden-import "pdf_toolbox.core.utils" `
+            --hidden-import "pdf_toolbox.workers" `
+            --hidden-import "pdf_toolbox.gui" `
+            --hidden-import "pdf_toolbox.gui.pages" `
+            --hidden-import "pdf_toolbox.gui.widgets" `
+            --collect-all "PySide6" `
+            src/pdf_toolbox/app.py
+
+      - name: Rename artifact
+        shell: bash
+        run: mv dist/PDF_Toolbox.exe "dist/PDF_Toolbox_v${{ steps.version.outputs.version }}_win_x64.exe"
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/PDF_Toolbox_v${{ steps.version.outputs.version }}_win_x64.exe
+          generate_release_notes: false
+          append_body: true
+          body: |
+
+            ---
+            ## 下載
+
+            | 平台 | 檔案 |
+            |------|------|
+            | Windows x64 | `PDF_Toolbox_v${{ steps.version.outputs.version }}_win_x64.exe` |
+
+            > 免安裝，下載後直接執行即可。
