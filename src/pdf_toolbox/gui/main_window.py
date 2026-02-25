@@ -5,7 +5,7 @@ Main application window with sidebar navigation and stacked pages.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from pdf_toolbox import __version__
-from pdf_toolbox.gui.icons import PAGE_ICONS
+from pdf_toolbox.gui.icons import PAGE_ICONS, get_app_icon_path
 from pdf_toolbox.gui.theme import PALETTE, get_sidebar_stylesheet, get_stylesheet
 
 
@@ -36,14 +36,34 @@ class Sidebar(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # App title
+        # App title with icon
+        title_container = QWidget()
+        title_container.setStyleSheet(f"background-color: {PALETTE.crust};")
+        title_layout = QHBoxLayout(title_container)
+        title_layout.setContentsMargins(12, 16, 12, 16)
+        title_layout.setSpacing(8)
+
+        icon_label = QLabel()
+        icon_path = get_app_icon_path()
+        if icon_path.exists():
+            pixmap = QPixmap(str(icon_path)).scaled(
+                32,
+                32,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            icon_label.setPixmap(pixmap)
+        icon_label.setFixedSize(32, 32)
+        icon_label.setStyleSheet("background: transparent;")
+        title_layout.addWidget(icon_label)
+
         title = QLabel("PDF Toolbox")
-        title.setFont(QFont("Microsoft JhengHei", 16, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setStyleSheet(
-            f"color: {PALETTE.blue}; padding: 20px 0; background-color: {PALETTE.crust};"
-        )
-        layout.addWidget(title)
+        title.setFont(QFont("Microsoft JhengHei", 14, QFont.Weight.Bold))
+        title.setStyleSheet(f"color: {PALETTE.blue}; background: transparent;")
+        title_layout.addWidget(title)
+        title_layout.addStretch()
+
+        layout.addWidget(title_container)
 
         # Navigation buttons
         self._buttons: list[QPushButton] = []
@@ -84,6 +104,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PDF Toolbox")
         self.setMinimumSize(1100, 750)
         self.setStyleSheet(get_stylesheet())
+
+        # Window title bar + taskbar icon
+        icon_path = get_app_icon_path()
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+
         self._setup_ui()
 
     def _setup_ui(self) -> None:

@@ -5,6 +5,16 @@ Using Unicode/emoji as placeholders; replace with SVG QIcon in production.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+
+def get_app_icon_path() -> Path:
+    """Resolve app icon path for both dev and PyInstaller bundled modes."""
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[1]))
+    return base / "resources" / "icons" / "app.png"
+
+
 # Sidebar page icons (icon_text, label)
 PAGE_ICONS: list[tuple[str, str]] = [
     ("\U0001f3e0", "首頁"),
