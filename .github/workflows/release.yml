@@ -46,6 +46,8 @@ jobs:
             --onefile `
             --noconfirm `
             --clean `
+            --icon "src/pdf_toolbox/resources/icons/app.ico" `
+            --add-data "src/pdf_toolbox/resources;pdf_toolbox/resources" `
             --add-data "src/pdf_toolbox/gui;pdf_toolbox/gui" `
             --hidden-import "PySide6.QtCore" `
             --hidden-import "PySide6.QtGui" `

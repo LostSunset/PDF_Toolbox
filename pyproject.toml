@@ -1,6 +1,6 @@
 [project]
 name = "pdf-toolbox"
-version = "0.2.1"
+version = "0.3.0"
 description = "A unified PySide6 PDF processing toolbox"
 readme = "README.md"
 license = { text = "MIT" }

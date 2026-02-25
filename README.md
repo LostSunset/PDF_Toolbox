@@ -9,9 +9,13 @@
 
 一站式 PDF 處理工具箱，採用 PySide6 構建，Catppuccin Mocha 暗色主題。
 
+<p align="center">
+  <img src="src/pdf_toolbox/resources/icons/app_512.png" alt="PDF Toolbox Icon" width="128">
+</p>
+
 ## 下載
 
-前往 [Releases](https://github.com/LostSunset/PDF_Toolbox/releases/latest) 下載最新版 Windows 執行檔（免安裝，直接執行）。
+前往 [Releases](https://github.com/LostSunset/PDF_Toolbox/releases/latest) 下載最新版 Windows 執行檔（免安裝，直接執行，含自訂圖示）。
 
 ## 功能總覽
 
@@ -109,7 +113,7 @@ uv run ruff check --fix src/ tests/
 uv run pytest
 
 # 本地構建 EXE
-uv run pyinstaller --name PDF_Toolbox --windowed --onefile src/pdf_toolbox/app.py
+uv run pyinstaller --name PDF_Toolbox --windowed --onefile --icon src/pdf_toolbox/resources/icons/app.ico src/pdf_toolbox/app.py
 ```
 
 ## 授權
