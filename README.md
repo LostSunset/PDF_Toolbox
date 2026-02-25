@@ -93,6 +93,7 @@ src/pdf_toolbox/
 | PyPDF2 | PDF 加密/保護 |
 | PyMuPDF | PDF 解鎖/修復/浮水印/壓縮 |
 | reportlab | PDF 生成輔助 |
+| pycryptodome | AES 加密（PyPDF2 加密所需） |
 
 ## 開發
 

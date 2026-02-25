@@ -52,6 +52,10 @@ jobs:
             --hidden-import "PySide6.QtWidgets" `
             --hidden-import "pikepdf" `
             --hidden-import "PyPDF2" `
+            --hidden-import "Crypto" `
+            --hidden-import "Crypto.Cipher" `
+            --hidden-import "Crypto.Cipher.AES" `
+            --hidden-import "Crypto.Util.Padding" `
             --hidden-import "fitz" `
             --hidden-import "reportlab" `
             --hidden-import "pdf_toolbox" `

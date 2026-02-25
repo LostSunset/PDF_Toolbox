@@ -1,6 +1,6 @@
 [project]
 name = "pdf-toolbox"
-version = "0.2.0"
+version = "0.2.1"
 description = "A unified PySide6 PDF processing toolbox"
 readme = "README.md"
 license = { text = "MIT" }
@@ -12,6 +12,7 @@ dependencies = [
     "PyPDF2>=3.0",
     "PyMuPDF>=1.25",
     "reportlab>=4.0",
+    "pycryptodome>=3.20",
 ]
 
 [project.scripts]

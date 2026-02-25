@@ -3,23 +3,33 @@ PDF 禁止複製保護工具 - PySide6 GUI 版本
 支援批次處理多個 PDF 檔案
 """
 
-import sys
 import os
-from pathlib import Path
-from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QListWidget, QLabel, QFileDialog, QProgressBar,
-    QMessageBox, QGroupBox, QListWidgetItem
-)
-from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QFont, QIcon
+import sys
 
 import pikepdf
 from PyPDF2 import PdfReader, PdfWriter
+from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class ProtectWorker(QThread):
     """處理 PDF 保護的工作執行緒"""
+
     progress = Signal(int, str)  # 進度百分比, 訊息
     finished_file = Signal(str, bool, str)  # 檔名, 成功與否, 訊息
     all_done = Signal()
@@ -34,35 +44,30 @@ class ProtectWorker(QThread):
         for i, input_pdf in enumerate(self.files):
             filename = os.path.basename(input_pdf)
             self.progress.emit(int((i / total) * 100), f"處理中: {filename}")
-            
+
             try:
                 # 產生輸出檔名 p=protected
                 name, ext = os.path.splitext(filename)
                 output_pdf = os.path.join(self.output_dir, f"{name}_p{ext}")
-                
+
                 self.secure_pdf(input_pdf, output_pdf)
                 self.finished_file.emit(filename, True, f"✓ {filename} → 完成")
             except Exception as e:
-                self.finished_file.emit(filename, False, f"✗ {filename} → 錯誤: {str(e)}")
-        
+                self.finished_file.emit(filename, False, f"✗ {filename} → 錯誤: {e!s}")
+
         self.progress.emit(100, "全部完成！")
         self.all_done.emit()
 
     def secure_pdf(self, input_pdf: str, output_pdf: str):
         """PDF 保護核心邏輯，"""
         temp_pdf = "temp_p.pdf"
-        
+
         try:
             # 使用 pikepdf 開啟並加密 PDF 檔案
             with pikepdf.open(input_pdf) as pdf:
                 permissions = pikepdf.Permissions(extract=False)
                 pdf.save(
-                    temp_pdf,
-                    encryption=pikepdf.Encryption(
-                        user="",
-                        owner="",
-                        allow=permissions
-                    )
+                    temp_pdf, encryption=pikepdf.Encryption(user="", owner="", allow=permissions)
                 )
 
             # 使用 PyPDF2 再次讀取並儲存為最終的加密文件
@@ -85,7 +90,7 @@ class ProtectWorker(QThread):
 
 class MainWindow(QMainWindow):
     """主視窗"""
-    
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("PDF 禁止複製保護工具")
@@ -93,7 +98,7 @@ class MainWindow(QMainWindow):
         self.files = []
         self.output_dir = ""
         self.worker = None
-        
+
         self.setup_ui()
         self.apply_styles()
 
@@ -114,7 +119,7 @@ class MainWindow(QMainWindow):
         # 檔案選擇區
         file_group = QGroupBox("選擇 PDF 檔案")
         file_layout = QVBoxLayout(file_group)
-        
+
         btn_layout = QHBoxLayout()
         self.btn_add = QPushButton("➕ 新增檔案")
         self.btn_add.clicked.connect(self.add_files)
@@ -123,46 +128,46 @@ class MainWindow(QMainWindow):
         btn_layout.addWidget(self.btn_add)
         btn_layout.addWidget(self.btn_clear)
         file_layout.addLayout(btn_layout)
-        
+
         self.file_list = QListWidget()
         self.file_list.setMinimumHeight(150)
         file_layout.addWidget(self.file_list)
-        
+
         self.file_count_label = QLabel("已選擇 0 個檔案")
         file_layout.addWidget(self.file_count_label)
-        
+
         layout.addWidget(file_group)
 
         # 輸出目錄區
         output_group = QGroupBox("輸出設定")
         output_layout = QHBoxLayout(output_group)
-        
+
         self.output_label = QLabel("請選擇輸出資料夾...")
         self.output_label.setStyleSheet("color: #888;")
         output_layout.addWidget(self.output_label, 1)
-        
+
         self.btn_output = QPushButton("📁 選擇資料夾")
         self.btn_output.clicked.connect(self.select_output_dir)
         output_layout.addWidget(self.btn_output)
-        
+
         layout.addWidget(output_group)
 
         # 進度區
         progress_group = QGroupBox("處理進度")
         progress_layout = QVBoxLayout(progress_group)
-        
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
         progress_layout.addWidget(self.progress_bar)
-        
+
         self.status_label = QLabel("準備就緒")
         self.status_label.setAlignment(Qt.AlignCenter)
         progress_layout.addWidget(self.status_label)
-        
+
         self.result_list = QListWidget()
         self.result_list.setMaximumHeight(100)
         progress_layout.addWidget(self.result_list)
-        
+
         layout.addWidget(progress_group)
 
         # 執行按鈕
@@ -249,12 +254,7 @@ class MainWindow(QMainWindow):
 
     def add_files(self):
         """新增 PDF 檔案"""
-        files, _ = QFileDialog.getOpenFileNames(
-            self,
-            "選擇 PDF 檔案",
-            "",
-            "PDF Files (*.pdf)"
-        )
+        files, _ = QFileDialog.getOpenFileNames(self, "選擇 PDF 檔案", "", "PDF Files (*.pdf)")
         if files:
             for f in files:
                 if f not in self.files:
@@ -281,7 +281,7 @@ class MainWindow(QMainWindow):
         if not self.files:
             QMessageBox.warning(self, "警告", "請先選擇要處理的 PDF 檔案！")
             return
-        
+
         if not self.output_dir:
             QMessageBox.warning(self, "警告", "請先選擇輸出資料夾！")
             return
@@ -291,10 +291,10 @@ class MainWindow(QMainWindow):
         self.btn_add.setEnabled(False)
         self.btn_clear.setEnabled(False)
         self.btn_output.setEnabled(False)
-        
+
         # 清除結果列表
         self.result_list.clear()
-        
+
         # 開始處理
         self.worker = ProtectWorker(self.files.copy(), self.output_dir)
         self.worker.progress.connect(self.on_progress)
@@ -323,21 +323,19 @@ class MainWindow(QMainWindow):
         self.btn_add.setEnabled(True)
         self.btn_clear.setEnabled(True)
         self.btn_output.setEnabled(True)
-        
+
         QMessageBox.information(
-            self, 
-            "完成", 
-            f"已完成 {len(self.files)} 個檔案的處理！\n輸出位置：{self.output_dir}"
+            self, "完成", f"已完成 {len(self.files)} 個檔案的處理！\n輸出位置：{self.output_dir}"
         )
 
 
 def main():
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    
+
     window = MainWindow()
     window.show()
-    
+
     sys.exit(app.exec())
 
 

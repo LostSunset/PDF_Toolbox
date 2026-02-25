@@ -3,21 +3,33 @@ PDF to PNG Converter GUI
 使用 PySide6 建立 GUI，將資料夾內的 PDF 檔案用 pdftoppm 轉換成 PNG
 """
 
-import sys
-import os
 import subprocess
+import sys
 from pathlib import Path
-from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLineEdit, QLabel, QFileDialog, QProgressBar,
-    QTextEdit, QMessageBox, QSpinBox, QGroupBox, QListWidget,
-    QAbstractItemView
-)
+
 from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QFileDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QSpinBox,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class ConvertWorker(QThread):
     """背景執行緒處理 PDF 轉換"""
+
     progress = Signal(int, int)  # current, total
     log = Signal(str)
     finished_signal = Signal(bool, str)
@@ -53,19 +65,13 @@ class ConvertWorker(QThread):
                     # 使用 pdftoppm 轉換
                     # -png: 輸出 PNG 格式
                     # -r: DPI 設定
-                    cmd = [
-                        "pdftoppm",
-                        "-png",
-                        "-r", str(self.dpi),
-                        str(pdf_path),
-                        str(output_base)
-                    ]
+                    cmd = ["pdftoppm", "-png", "-r", str(self.dpi), str(pdf_path), str(output_base)]
 
                     result = subprocess.run(
                         cmd,
                         capture_output=True,
                         text=True,
-                        creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+                        creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
                     )
 
                     if result.returncode == 0:
@@ -81,12 +87,12 @@ class ConvertWorker(QThread):
                     self.finished_signal.emit(False, "找不到 pdftoppm 工具")
                     return
                 except Exception as e:
-                    self.log.emit(f"✗ 錯誤: {str(e)}")
+                    self.log.emit(f"✗ 錯誤: {e!s}")
 
             self.finished_signal.emit(True, f"完成！成功轉換 {success_count}/{total} 個檔案")
 
         except Exception as e:
-            self.finished_signal.emit(False, f"發生錯誤: {str(e)}")
+            self.finished_signal.emit(False, f"發生錯誤: {e!s}")
 
     def cancel(self):
         self.is_cancelled = True
@@ -111,10 +117,10 @@ class PDFConverterWindow(QMainWindow):
         # 檔案選擇區域
         select_group = QGroupBox("選擇 PDF 來源")
         select_layout = QVBoxLayout(select_group)
-        
+
         # 按鈕列
         btn_row = QHBoxLayout()
-        
+
         self.browse_folder_btn = QPushButton("📁 選擇資料夾")
         self.browse_folder_btn.clicked.connect(self.browse_folder)
         self.browse_folder_btn.setToolTip("選擇資料夾，將自動掃描所有 PDF 檔案（含子資料夾）")
@@ -149,7 +155,7 @@ class PDFConverterWindow(QMainWindow):
         # DPI 設定區域
         settings_group = QGroupBox("設定")
         settings_layout = QHBoxLayout(settings_group)
-        
+
         settings_layout.addWidget(QLabel("DPI:"))
         self.dpi_spinbox = QSpinBox()
         self.dpi_spinbox.setRange(72, 1200)
@@ -157,13 +163,13 @@ class PDFConverterWindow(QMainWindow):
         self.dpi_spinbox.setSuffix(" dpi")
         self.dpi_spinbox.setToolTip("較高的 DPI 會產生更高解析度的圖片，但檔案更大")
         settings_layout.addWidget(self.dpi_spinbox)
-        
+
         settings_layout.addStretch()
-        
+
         # 預設 DPI 按鈕
         preset_label = QLabel("預設:")
         settings_layout.addWidget(preset_label)
-        
+
         for dpi_value in [150, 300, 600, 1200]:
             btn = QPushButton(f"{dpi_value}")
             btn.setFixedWidth(50)
@@ -175,7 +181,7 @@ class PDFConverterWindow(QMainWindow):
         # 進度條
         progress_group = QGroupBox("進度")
         progress_layout = QVBoxLayout(progress_group)
-        
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
         progress_layout.addWidget(self.progress_bar)
@@ -188,7 +194,7 @@ class PDFConverterWindow(QMainWindow):
         # 日誌區域
         log_group = QGroupBox("執行日誌")
         log_layout = QVBoxLayout(log_group)
-        
+
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setMinimumHeight(150)
@@ -198,17 +204,21 @@ class PDFConverterWindow(QMainWindow):
 
         # 按鈕區域
         btn_layout = QHBoxLayout()
-        
+
         self.start_btn = QPushButton("開始轉換")
         self.start_btn.clicked.connect(self.start_conversion)
         self.start_btn.setEnabled(False)
-        self.start_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; padding: 10px; }")
+        self.start_btn.setStyleSheet(
+            "QPushButton { background-color: #4CAF50; color: white; padding: 10px; }"
+        )
         btn_layout.addWidget(self.start_btn)
 
         self.cancel_btn = QPushButton("取消")
         self.cancel_btn.clicked.connect(self.cancel_conversion)
         self.cancel_btn.setEnabled(False)
-        self.cancel_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; padding: 10px; }")
+        self.cancel_btn.setStyleSheet(
+            "QPushButton { background-color: #f44336; color: white; padding: 10px; }"
+        )
         btn_layout.addWidget(self.cancel_btn)
 
         layout.addLayout(btn_layout)
@@ -235,10 +245,7 @@ class PDFConverterWindow(QMainWindow):
     def browse_folder(self):
         """選擇資料夾並掃描所有 PDF"""
         folder = QFileDialog.getExistingDirectory(
-            self,
-            "選擇資料夾",
-            "",
-            QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
+            self, "選擇資料夾", "", QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks
         )
         if folder:
             # 遞迴搜尋所有 PDF 檔案
@@ -252,10 +259,7 @@ class PDFConverterWindow(QMainWindow):
     def browse_files(self):
         """選擇多個 PDF 檔案"""
         files, _ = QFileDialog.getOpenFileNames(
-            self,
-            "選擇 PDF 檔案",
-            "",
-            "PDF 檔案 (*.pdf);;所有檔案 (*.*)"
+            self, "選擇 PDF 檔案", "", "PDF 檔案 (*.pdf);;所有檔案 (*.*)"
         )
         if files:
             pdf_files = [Path(f) for f in files]
@@ -269,7 +273,7 @@ class PDFConverterWindow(QMainWindow):
                 self.selected_files.append(pdf_path)
                 self.file_list.addItem(str(pdf_path))
                 added_count += 1
-        
+
         if added_count > 0:
             self.update_file_count()
             self.log_text.clear()
@@ -340,7 +344,7 @@ class PDFConverterWindow(QMainWindow):
         self.dpi_spinbox.setEnabled(True)
 
         self.progress_label.setText(message)
-        self.append_log(f"\n{'='*50}")
+        self.append_log(f"\n{'=' * 50}")
         self.append_log(message)
 
         if success:
@@ -351,13 +355,13 @@ class PDFConverterWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    
+
     # 設定應用程式樣式
     app.setStyle("Fusion")
-    
+
     window = PDFConverterWindow()
     window.show()
-    
+
     sys.exit(app.exec())
 
 
